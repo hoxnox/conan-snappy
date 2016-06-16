@@ -1,7 +1,6 @@
 from conans import ConanFile, ConfigureEnvironment
 from conans.tools import download, untargz, check_sha256
 from os import unlink,chdir
-from shutil import copy
 
 class SnappyConan(ConanFile):
     name = "snappy"
@@ -11,19 +10,19 @@ class SnappyConan(ConanFile):
     default_options = "shared=False"
 
     def source(self):
-        zip_name = "snappy-1.1.3.zip";
-        #download("https://github.com/google/snappy/releases/download/1.1.3/snappy-1.1.3.tar.gz", zip_name)
-        copy("/home/hoxnox/Downloads//snappy-1.1.3.tar.gz", zip_name)
-        check_sha256(zip_name, "f94c0f816510a95d7521c725e9ddf48bfd600a0f6623d33c9a6a92ec824d8c12")
-        untargz(zip_name)
-        unlink(zip_name)
+        tgz_name = "snappy-%s.tar.gz" % self.version;
+        download("https://github.com/google/snappy/releases/download/%s/%s"
+                % (self.version, tgz_name), tgz_name)
+        check_sha256(tgz_name, "2f1e82adf0868c9e26a5a7a3115111b6da7e432ddbac268a7ca2fae2a247eef3")
+        untargz(tgz_name)
+        unlink(tgz_name)
 
     def build(self):
        env = ConfigureEnvironment(self.deps_cpp_info, self.settings)
        shared_definition = "--enable-static --disable-shared"
        if self.options.shared:
            shared_definition = "--enable-shared --disable-static"
-       chdir("snappy-1.1.3")
+       chdir("snappy-%s" % self.version)
        self.run("%s ./autogen.sh" % (env.command_line))
        self.run("%s ./configure %s" % (env.command_line, shared_definition))
        self.run("%s make" % env.command_line)
