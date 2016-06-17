@@ -24,13 +24,14 @@ class SnappyConan(ConanFile):
            shared_definition = "--enable-shared --disable-static"
        chdir("snappy-%s" % self.version)
        self.run("%s ./autogen.sh" % (env.command_line))
-       self.run("%s ./configure %s" % (env.command_line, shared_definition))
-       self.run("%s make" % env.command_line)
+       self.run("%s ./configure prefix=\"%s/distr\" %s" % (env.command_line,
+           self.conanfile_directory, shared_definition))
+       self.run("%s make install" % env.command_line)
 
     def package(self):
-        self.copy("*.h", dst="include")
-        self.copy("*.lib", dst="lib", src="lib")
-        self.copy("*.a", dst="lib", src="lib")
+        self.copy("*.h", dst="include", src="distr/include")
+        self.copy("*.la", dst="lib", src="distr/lib")
+        self.copy("*.a", dst="lib", src="distr/lib")
 
     def package_info(self):
         self.cpp_info.libs = ["snappy"]
