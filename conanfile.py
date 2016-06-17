@@ -8,6 +8,7 @@ class SnappyConan(ConanFile):
     settings = "os", "compiler", "build_type", "arch"
     options = {"shared": [True, False]}
     default_options = "shared=False"
+    url = "https://github.com/hoxnox/conan-snappy.git"
 
     def source(self):
         tgz_name = "snappy-%s.tar.gz" % self.version;
