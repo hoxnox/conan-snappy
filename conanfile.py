@@ -1,6 +1,9 @@
 from conans import ConanFile, ConfigureEnvironment
 from conans.tools import download, untargz, check_sha256
-from os import unlink,chdir
+from os import unlink, chdir, getenv
+from shutil import copy
+
+vendor_dir = getenv("VENDOR_DIR", "")
 
 class SnappyConan(ConanFile):
     name = "snappy"
@@ -12,8 +15,11 @@ class SnappyConan(ConanFile):
 
     def source(self):
         tgz_name = "snappy-%s.tar.gz" % self.version;
-        download("https://github.com/google/snappy/releases/download/%s/%s"
-                % (self.version, tgz_name), tgz_name)
+        if len(vendor_dir) != 0:
+            copy("%s/google/snappy/%s" % (vendor_dir, tgz_name), tgz_name)
+        else:
+            download("https://github.com/google/snappy/releases/download/%s/%s"
+                    % (self.version, tgz_name), tgz_name)
         check_sha256(tgz_name, "2f1e82adf0868c9e26a5a7a3115111b6da7e432ddbac268a7ca2fae2a247eef3")
         untargz(tgz_name)
         unlink(tgz_name)
@@ -31,15 +37,18 @@ class SnappyConan(ConanFile):
 
     def package(self):
         self.copy("*.h", dst="include", src="distr/include")
-        self.copy("*.la", dst="lib", src="distr/lib")
-        self.copy("*.a", dst="lib", src="distr/lib")
+        self.copy("*.la"   , dst="lib", src="distr/lib")
+        self.copy("*.a"    , dst="lib", src="distr/lib")
+        self.copy("*.so"   , dst="lib", src="distr/lib")
+        self.copy("*.dll"  , dst="lib", src="distr/lib")
+        self.copy("*.dylib", dst="lib", src="distr/lib")
 
     def package_info(self):
         self.cpp_info.libs = ["snappy"]
 
     def imports(self):
-       self.copy("*.dll", dst="bin", src="bin")
-       self.copy("*.dylib*", dst="bin", src="lib")
-       self.copy("*.so", dst="bin", src="lib")
+        self.copy("*.dll"   , dst="bin", src="lib")
+        self.copy("*.dylib*", dst="bin", src="lib")
+        self.copy("*.so"    , dst="lib", src="lib")
 
 
