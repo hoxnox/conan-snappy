@@ -12,6 +12,7 @@ class SnappyConan(ConanFile):
     options = {"shared": [True, False]}
     default_options = "shared=False"
     url = "https://github.com/hoxnox/conan-snappy.git"
+    license = "https://github.com/google/snappy/blob/master/COPYING"
 
     def source(self):
         tgz_name = "snappy-%s.tar.gz" % self.version;
