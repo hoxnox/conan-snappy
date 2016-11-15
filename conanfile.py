@@ -1,5 +1,5 @@
 from conans import ConanFile, ConfigureEnvironment
-from conans.tools import download, untargz, check_sha256
+from conans.tools import download, untargz, check_sha256, replace_in_file
 from os import unlink, chdir, getenv
 from shutil import copy
 
@@ -12,6 +12,7 @@ class SnappyConan(ConanFile):
     options = {"shared": [True, False]}
     default_options = "shared=False"
     url = "https://github.com/hoxnox/conan-snappy.git"
+    license = "https://github.com/google/snappy/blob/master/COPYING"
 
     def source(self):
         tgz_name = "snappy-%s.tar.gz" % self.version;
@@ -30,6 +31,8 @@ class SnappyConan(ConanFile):
        if self.options.shared:
            shared_definition = "--enable-shared --disable-static"
        chdir("snappy-%s" % self.version)
+       if self.settings.os == "Macos":
+           replace_in_file("./autogen.sh", "libtoolize", "glibtoolize")
        self.run("%s ./autogen.sh" % (env.command_line))
        self.run("%s ./configure prefix=\"%s/distr\" %s" % (env.command_line,
            self.conanfile_directory, shared_definition))
