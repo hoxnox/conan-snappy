@@ -34,6 +34,7 @@ class SnappyConan(ConanFile):
        if self.settings.os == "Macos":
            replace_in_file("./autogen.sh", "libtoolize", "glibtoolize")
        self.run("%s ./autogen.sh" % (env.command_line))
+       self.run("%s autoreconf --force --install" % (env.command_line))
        self.run("%s ./configure prefix=\"%s/distr\" %s" % (env.command_line,
            self.conanfile_directory, shared_definition))
        self.run("%s make install" % env.command_line)
