@@ -1,5 +1,5 @@
-from conans import ConanFile, ConfigureEnvironment
-from conans.tools import download, untargz, check_sha256, replace_in_file
+from conans import ConanFile, AutoToolsBuildEnvironment
+from conans.tools import download, untargz, check_sha256, replace_in_file, environment_append
 from os import unlink, chdir, getenv
 from shutil import copy
 
@@ -7,6 +7,7 @@ vendor_dir = getenv("VENDOR_DIR", "")
 
 class SnappyConan(ConanFile):
     name = "snappy"
+    description = "Snappy, a fast compressor/decompressor."
     version = "1.1.4"
     settings = "os", "compiler", "build_type", "arch"
     options = {"shared": [True, False]}
@@ -26,14 +27,15 @@ class SnappyConan(ConanFile):
         unlink(tgz_name)
 
     def build(self):
-       env = ConfigureEnvironment(self.deps_cpp_info, self.settings)
        shared_definition = "--enable-static --disable-shared"
        if self.options.shared:
            shared_definition = "--enable-shared --disable-static"
        chdir("snappy-%s" % self.version)
-       self.run("%s ./configure --disable-gtest prefix=\"%s/distr\" %s" % (env.command_line,
-           self.conanfile_directory, shared_definition))
-       self.run("%s make install" % env.command_line)
+       env_build = AutoToolsBuildEnvironment(self)
+       with environment_append(env_build.vars):
+           self.run("./configure --disable-gtest prefix=\"%s/distr\" %s" % (
+               self.conanfile_directory, shared_definition))
+           self.run("make install")
 
     def package(self):
         self.copy("*.h", dst="include", src="distr/include")
