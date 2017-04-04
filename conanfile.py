@@ -31,10 +31,6 @@ class SnappyConan(ConanFile):
        if self.options.shared:
            shared_definition = "--enable-shared --disable-static"
        chdir("snappy-%s" % self.version)
-       if self.settings.os == "Macos":
-           replace_in_file("./autogen.sh", "libtoolize", "glibtoolize")
-       self.run("%s ./autogen.sh" % (env.command_line))
-       self.run("%s autoreconf --force --install" % (env.command_line))
        self.run("%s ./configure --disable-gtest prefix=\"%s/distr\" %s" % (env.command_line,
            self.conanfile_directory, shared_definition))
        self.run("%s make install" % env.command_line)
