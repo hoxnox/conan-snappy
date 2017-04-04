@@ -6,7 +6,7 @@ username = os.getenv("CONAN_USERNAME", "hoxnox")
 
 class SnappyTestConan(ConanFile):
     settings = "os", "compiler", "build_type", "arch"
-    requires = "snappy/1.1.3@%s/%s" % (username, channel)
+    requires = "snappy/1.1.4@%s/%s" % (username, channel)
     generators = "cmake"
 
     def build(self):

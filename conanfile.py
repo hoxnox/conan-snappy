@@ -7,7 +7,7 @@ vendor_dir = getenv("VENDOR_DIR", "")
 
 class SnappyConan(ConanFile):
     name = "snappy"
-    version = "1.1.3"
+    version = "1.1.4"
     settings = "os", "compiler", "build_type", "arch"
     options = {"shared": [True, False]}
     default_options = "shared=False"
@@ -21,7 +21,7 @@ class SnappyConan(ConanFile):
         else:
             download("https://github.com/google/snappy/releases/download/%s/%s"
                     % (self.version, tgz_name), tgz_name)
-        check_sha256(tgz_name, "2f1e82adf0868c9e26a5a7a3115111b6da7e432ddbac268a7ca2fae2a247eef3")
+        check_sha256(tgz_name, "134bfe122fd25599bb807bb8130e7ba6d9bdb851e0b16efcb83ac4f5d0b70057")
         untargz(tgz_name)
         unlink(tgz_name)
 
