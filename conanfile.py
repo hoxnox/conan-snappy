@@ -10,12 +10,14 @@ class SnappyConan(ConanFile):
     description = "Snappy, a fast compressor/decompressor."
     version = "1.1.4"
     settings = "os", "compiler", "build_type", "arch"
-    options = {"shared": [True, False]}
-    default_options = "shared=False"
+    options = {"shared":[True, False], "system":[True, False], "root":"ANY"}
+    default_options = 'shared=False', 'system=False', 'root='
     url = "https://github.com/hoxnox/conan-snappy.git"
     license = "https://github.com/google/snappy/blob/master/COPYING"
 
     def source(self):
+        if self.options.system:
+            return
         tgz_name = "snappy-%s.tar.gz" % self.version;
         if len(vendor_dir) != 0:
             copy("%s/google/snappy/%s" % (vendor_dir, tgz_name), tgz_name)
@@ -27,17 +29,21 @@ class SnappyConan(ConanFile):
         unlink(tgz_name)
 
     def build(self):
-       shared_definition = "--enable-static --disable-shared"
-       if self.options.shared:
-           shared_definition = "--enable-shared --disable-static"
-       chdir("snappy-%s" % self.version)
-       env_build = AutoToolsBuildEnvironment(self)
-       with environment_append(env_build.vars):
-           self.run("./configure --disable-gtest prefix=\"%s/distr\" %s" % (
-               self.conanfile_directory, shared_definition))
-           self.run("make install")
+        if self.options.system:
+            return
+        shared_definition = "--enable-static --disable-shared"
+        if self.options.shared:
+            shared_definition = "--enable-shared --disable-static"
+        chdir("snappy-%s" % self.version)
+        env_build = AutoToolsBuildEnvironment(self)
+        with environment_append(env_build.vars):
+            self.run("./configure --disable-gtest prefix=\"%s/distr\" %s" % (
+                self.conanfile_directory, shared_definition))
+            self.run("make install")
 
     def package(self):
+        if self.options.system:
+            return
         self.copy("*.h", dst="include", src="distr/include")
         self.copy("*.la"   , dst="lib", src="distr/lib")
         self.copy("*.a"    , dst="lib", src="distr/lib")
@@ -45,12 +51,19 @@ class SnappyConan(ConanFile):
         self.copy("*.dll"  , dst="lib", src="distr/lib")
         self.copy("*.dylib", dst="lib", src="distr/lib")
 
-    def package_info(self):
-        self.cpp_info.libs = ["snappy"]
-
     def imports(self):
+        if self.options.system:
+            return
         self.copy("*.dll"   , dst="bin", src="lib")
         self.copy("*.dylib*", dst="bin", src="lib")
         self.copy("*.so"    , dst="lib", src="lib")
 
+    def package_info(self):
+        self.cpp_info.libs = ["snappy"]
+        if self.options.system:
+            self.cpp_info.includedirs = []
+            self.cpp_info.libdirs = []
+            if len(str(self.options.root)) != 0:
+                self.cpp_info.includedirs.append(str(self.options.root) + "/include")
+                self.cpp_info.libdirs.append(str(self.options.root) + "/lib")
 
