@@ -1,0 +1,3 @@
+[submodule "nxtools"]
+	path = nxtools
+	url = git@github.com:hoxnox/conan-nxtools
