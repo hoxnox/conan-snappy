@@ -1,7 +1,6 @@
 from nxtools import NxConanFile, retrieve
 from conans import AutoToolsBuildEnvironment, tools
 from os import chdir
-from shutil import copy
 
 class SnappyConan(NxConanFile):
     name = "snappy"
