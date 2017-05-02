@@ -1,6 +1,6 @@
 from nxtools import NxConanFile, retrieve
 from conans import AutoToolsBuildEnvironment, tools
-from os import chdir
+from shutil import rmtree
 
 class SnappyConan(NxConanFile):
     name = "snappy"
@@ -16,20 +16,21 @@ class SnappyConan(NxConanFile):
             [
                 'vendor://google/snappy/snappy-{version}.tar.gz'.format(version=self.version),
                 'https://github.com/google/snappy/releases/download/{version}/snappy-{version}.tar.gz'.format(version=self.version)
-            ],
-            'snappy-{version}.tar.gz'.format(version=self.version))
+            ])
 
     def do_build(self):
         shared_definition = "--enable-static --disable-shared"
         if self.options.shared:
             shared_definition = "--enable-shared --disable-static"
-        chdir("snappy-%s" % self.version)
         env_build = AutoToolsBuildEnvironment(self)
         with tools.environment_append(env_build.vars):
-            self.run("./configure --disable-gtest prefix=\"%s/distr\" %s" % (
-                self.conanfile_directory, shared_definition))
-            self.run("make install")
+            self.run("cd snappy-{v} && ./configure --disable-gtest prefix=\"{staging}\" {shared}".format(
+                v = self.version, staging=self.staging_dir, shared=shared_definition))
+            self.run("cd snappy-{v} && make install".format(v = self.version))
 
     def do_package_info(self):
         self.cpp_info.libs = ["snappy"]
+
+    def do_package(self):
+        rmtree("snappy-{v}".format(v = self.version))
 
