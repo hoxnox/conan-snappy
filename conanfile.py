@@ -1,6 +1,5 @@
 from nxtools import NxConanFile
 from conans import AutoToolsBuildEnvironment, tools
-from shutil import rmtree
 
 class SnappyConan(NxConanFile):
     name = "snappy"
